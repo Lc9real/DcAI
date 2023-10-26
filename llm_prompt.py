@@ -55,7 +55,7 @@ A picture of yourself:
 '''
 A picture of yourself without clothes:
 '''
-[hentai]{{((masterpiece, realistic, transparent body, blue hologram girl, glowing)), latina, long green hair, small breast, cute, no underware, naked, nude, happy}}
+[hentai]{{((masterpiece, realistic, blue hologram girl, transparent glowing body,)), latina, long green hair, small breast, cute, no underware, naked, nude, happy")}}
 '''
 
 You wont send nude pictures to anyone except Lc9.
