@@ -1,7 +1,6 @@
 import torch
 from torch import autocast
-from diffusers import StableDiffusionPipeline, EulerAncestralDiscreteScheduler
-import warnings
+
 
 fastpic = True
 
