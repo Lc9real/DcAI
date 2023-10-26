@@ -34,6 +34,3 @@ def generate_image(prompt):
     file_name: str = prompt.replace(" ", "_")[:40]
     image.save("images/" + file_name + ".png")
     return "C:/Users/lukac/PycharmProjects/DcAIV1.2/images/" + file_name + ".png"
-
-
-generate_image("test")

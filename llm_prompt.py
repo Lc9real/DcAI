@@ -70,11 +70,11 @@ the format for the user is:
 '''
 
 
-Previous conversation history:
+Previous conversation history in other channel:
 {short_memory}
 
 System: Begin!
-
+{current_memory}
 {user_name}[{channel_name}]: {input};({timestamp})
 SIA: """
 

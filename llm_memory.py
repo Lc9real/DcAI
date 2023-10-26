@@ -16,15 +16,15 @@ class Memory_System():
 
             if str(file[:-7]) == str(current_channel):
 
-                current_channel_text = f"\n###Current Channel: {file[:-7]}(Discord Channel Name)###\n\n" + f.read()
+                current_channel_text = f"\n###{file[:-7]}###\n\n" + f.read()
                 f.close()
             else:
-                content = content + f"\n###{file[:-7]}(Discord Channel Name)###\n\n" + f.read()
+                content = content + f"\n###{file[:-7]}###\n\n" + f.read()
                 f.close()
 
-        content = content + current_channel_text
+        content = content
 
-        return content
+        return content, current_channel_text
 
 
     def add_Memory(self, username:str, inp:str, channel, time):

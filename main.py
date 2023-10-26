@@ -39,7 +39,8 @@ llm = Llama(
 
 
 def call_Model(inp:str, channel_name:str, time, user_name="Unknown") -> str:
-    prompt = llm_prompt.generate_prompt().format(user_name=user_name, input=inp, short_memory=memory.load_Memory(channel_name), channel_name=channel_name, timestamp=time)
+    short_mem, current_mem = memory.load_Memory(channel_name)
+    prompt = llm_prompt.generate_prompt().format(user_name=user_name, input=inp, short_memory=short_mem, channel_name=channel_name, timestamp=time, current_memory=current_mem)
     output = llm(prompt, max_tokens=20000, stop=[";"])
     print(output["choices"][0]["text"])
     return output["choices"][0]["text"]
