@@ -3,7 +3,7 @@ from torch import autocast
 from diffusers import StableDiffusionPipeline, EulerAncestralDiscreteScheduler
 
 fastpic = True
-path = "C:\sdwebui\Stable2\stable-diffusion-webui\models\Stable-diffusion\SSD-1B.safetensors"
+path = "C:\sdwebui\Stable2\stable-diffusion-webui\models\Stable-diffusion\epicrealism_pureEvolutionV3.safetensors"
 torch_type = torch.float16
 
 if fastpic:
