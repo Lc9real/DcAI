@@ -56,5 +56,5 @@ Previous conversation history in other channel:
 
 System: Begin!
 {current_memory}
-{user_name}[{channel_name}]: {input};({timestamp})
-SIA: 
+{user_name}: {input};({timestamp});
+SIA:

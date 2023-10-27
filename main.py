@@ -8,6 +8,7 @@ import llm_prompt
 #import tool_SD
 import os
 
+
 #set variables
 
 try:
@@ -58,34 +59,38 @@ def check_pattern(pattern:str, text:str):
 
 def call_Model(inp:str, channel_name:str, time, user_name="Unknown") -> str:
     short_mem, current_mem = memory.load_Memory(channel_name)
-    prompt = llm_prompt.generate_prompt().format(user_name=user_name, input=inp, short_memory=short_mem, channel_name=channel_name, timestamp=time, current_memory=current_mem)
-    print(prompt)
+    prompt = llm_prompt.generate_prompt().format(user_name=user_name, input=inp, short_memory=short_mem, timestamp=time, current_memory=current_mem)
     output = llm(prompt, max_tokens=20000, stop=[";"])
-    print(output)
     print(output["choices"][0]["text"])
     return output["choices"][0]["text"]
 
 
 
-async def send_message(message, user_message, is_private, username:str, bot):
+async def send_message(message, message_content, is_private, username:str, bot):
     user_timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     mark_pattern = r'\<@(.+?)\>'
-    temp_d = check_pattern(mark_pattern, user_message)
-    print(user_message)
+    temp_d = check_pattern(mark_pattern, message_content)
     mark_matches = temp_d["matches"]
     for match in mark_matches:
-        print(match)
+        user = await bot.fetch_user(match)
+        message_content.replace(match, str(user))
 
-    if "<@1165020606044049491>" in user_message:
-        user_message = user_message.replace("<@1165020606044049491>", "@SIA")
+
+    if "<@1165020606044049491>" in message_content:
+        message_content = message_content.replace("<@1165020606044049491>", "@SIA")
         async with message.channel.typing():
 
 
 
-            response = call_Model(user_message, message.channel, user_timestamp, username)
+            response = call_Model(message_content, message.channel, user_timestamp, username)
             timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-
-
+            tag_pattern = r"@(\w+)"
+            response = "@lc9real"
+            temp_d = check_pattern(tag_pattern, response)
+            tag_matches = temp_d["matches"]
+            for match in tag_matches:
+                print(match)
+                response.replace(f"@{match}", message.guild.get_member_named(match).mention)
 
             channel_pattern = r'\[(.*?)\]'
             picture_pattern = r'\{(.+?)\}'
@@ -152,6 +157,8 @@ def run_discord_bot():
     TOKEN = 'MTE2NTAyMDYwNjA0NDA0OTQ5MQ.GmEsyI.iXcRL5CyMprK6Lzu3bxS4ExPQYUxkWv6RgE_0k'
     intents = discord.Intents.default()
     intents.message_content = True
+    intents.members = True
+
     client = discord.Client(intents=intents)
     tree = app_commands.CommandTree(client)
     @client.event
