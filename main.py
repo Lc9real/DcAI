@@ -5,7 +5,6 @@ from discord import app_commands
 from llama_cpp import Llama
 from llm_memory import Memory_System
 import llm_prompt
-import tool_SD
 import os
 
 #set variables
