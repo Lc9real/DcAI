@@ -6,10 +6,23 @@ from llama_cpp import Llama
 from llm_memory import Memory_System
 import llm_prompt
 import tool_SD
-
+import sys
+import os
+import urllib.parse
 
 #set variables
-model_path = "./Model/synthia-13b.Q8_0.gguf"
+
+try:
+    model_name = open("./Model/Model_Name.txt", "r").readlines()[0]
+except IndexError as e:
+    raise IndexError("Model Name not Specified")
+
+
+
+model_path = f"./Model/{model_name}"
+
+if not os.path.exists(model_path):
+    raise ValueError(f"Model does not exist check if model is in ./Model or if the name is right")
 temperature = 0.4
 n_gpu_layer = 100
 n_batch = 40

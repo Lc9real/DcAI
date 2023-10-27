@@ -1,1 +1,0 @@
-synthia-13b.Q8_0.gguf
