@@ -6,9 +6,7 @@ from llama_cpp import Llama
 from llm_memory import Memory_System
 import llm_prompt
 import tool_SD
-import sys
 import os
-import urllib.parse
 
 #set variables
 
