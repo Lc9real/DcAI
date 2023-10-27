@@ -5,6 +5,7 @@ from discord import app_commands
 from llama_cpp import Llama
 from llm_memory import Memory_System
 import llm_prompt
+#import tool_SD
 import os
 
 #set variables
@@ -23,7 +24,7 @@ if not os.path.exists(model_path):
 temperature = 0.4
 n_gpu_layer = 100
 n_batch = 40
-max_tokens = 6900
+max_tokens = 10000
 Debug = True
 
 
@@ -47,81 +48,102 @@ llm = Llama(
 
 
 
+def check_pattern(pattern:str, text:str):
+    matches = re.findall(pattern, text)
+    if matches and "```" not in text:
+        text = re.sub(pattern, '', text)
+    else:
+        matches = []
+    return {"text": text, "matches": matches}
 
 def call_Model(inp:str, channel_name:str, time, user_name="Unknown") -> str:
     short_mem, current_mem = memory.load_Memory(channel_name)
     prompt = llm_prompt.generate_prompt().format(user_name=user_name, input=inp, short_memory=short_mem, channel_name=channel_name, timestamp=time, current_memory=current_mem)
+    print(prompt)
     output = llm(prompt, max_tokens=20000, stop=[";"])
+    print(output)
     print(output["choices"][0]["text"])
     return output["choices"][0]["text"]
 
 
 
 async def send_message(message, user_message, is_private, username:str, bot):
-    timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    user_timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    mark_pattern = r'\<@(.+?)\>'
+    temp_d = check_pattern(mark_pattern, user_message)
+    print(user_message)
+    mark_matches = temp_d["matches"]
+    for match in mark_matches:
+        print(match)
+
     if "<@1165020606044049491>" in user_message:
         user_message = user_message.replace("<@1165020606044049491>", "@SIA")
-        memory.add_Memory(message.author, user_message, message.channel, timestamp)
         async with message.channel.typing():
 
 
-            response = call_Model(user_message, message.channel, timestamp, username)
+
+            response = call_Model(user_message, message.channel, user_timestamp, username)
             timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+
 
 
             channel_pattern = r'\[(.*?)\]'
             picture_pattern = r'\{(.+?)\}'
 
-            channel_matches = re.findall(channel_pattern, response)
-            if channel_matches and "```" not in response:
-                response = re.sub(channel_pattern, '', response)
-                channel = discord.utils.get(message.guild.channels, name=channel_matches[0])
-                channel_id = channel.id
 
-            matches = re.findall(picture_pattern, response)
-            if matches and "```" not in response:
+
+            temp_d = check_pattern(channel_pattern, response)
+            response = temp_d["text"]
+            channel_matches = temp_d["matches"]
+
+
+            temp_d = check_pattern(picture_pattern, response)
+            response = temp_d["text"]
+            image_matches = temp_d["matches"]
+
+
+
+
+            if image_matches:
                 image_files = []
-
-                for match in matches:
+                for match in image_matches:
                     path = tool_SD.generate_image(match)
                     response = response.replace(f'{{{match}}}', '')
                     image_files.append(discord.File(path))
-
-                if "```" in response:
-                    channel_matches = None
-                    image_files = None
-
-                #memory
+                # memory
                 images = ""
-                for thing in matches:
+                for thing in image_matches:
                     images = images + " {" + thing + "}"
 
-                #send message
-                if image_files:
-                    if response:
-                        if channel_matches:
-
+            if channel_matches:
+                channel = discord.utils.get(message.guild.channels, name=channel_matches[0])
+                channel_id = channel.id
+                if image_matches:
+                    if image_files:
+                        if response:
                             await bot.get_channel(channel_id).send(response, files=image_files)
                             memory.add_Memory("SIA", response + images, channel_matches[0], timestamp)
                         else:
-                            await message.channel.send(response, files=image_files)
-                            memory.add_Memory("SIA", response + images, message.channel, timestamp)
-                    else:
-                        if channel_matches:
                             await bot.get_channel(channel_id).send(" ", files=image_files)
                             memory.add_Memory("SIA", images, channel_matches[0], timestamp)
-                        else:
-                            await message.channel.send(" ",files=image_files)
-                            memory.add_Memory("SIA", images, message.channel, timestamp)
-            else:
-                if channel_matches:
-                    await message.author.send(response) if is_private else bot.get_channel(channel_id).send(response)
                 else:
-                    memory.add_Memory("SIA", response, message.channel, timestamp)
-
-                    await message.author.send(response) if is_private else await message.channel.send(response)
-    else:
-        memory.add_Memory(message.author, message.content, message.channel, timestamp)
+                    await message.author.send(response) if is_private else bot.get_channel(channel_id).send(response)
+            else:
+                if image_matches:
+                    if image_files:
+                        if response:
+                            await message.channel.send(response, files=image_files)
+                            memory.add_Memory("SIA", response + images, message.channel, timestamp)
+                        else:
+                            await message.channel.send(" ", files=image_files)
+                            memory.add_Memory("SIA", images, message.channel, timestamp)
+                    else:
+                        await message.channel.send(response)
+                        memory.add_Memory("SIA", response + "\n'''Couldn't Send Image'''", message.channel, timestamp)
+                else:
+                    await message.channel.send(response)
+                    memory.add_Memory("SIA", response + "\n'''Couldn't Send Image'''", message.channel, timestamp)
+    memory.add_Memory(message.author, message.content, message.channel, user_timestamp)
 
 
 
