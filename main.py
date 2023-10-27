@@ -9,7 +9,7 @@ import tool_SD
 
 
 #set variables
-model_path = "C:/Users/lukac/SIA/Model/s/collectivecognition-v1-mistral-7b.Q8_0.gguf"
+model_path = "./Model/synthia-13b.Q8_0.gguf"
 temperature = 0.4
 n_gpu_layer = 100
 n_batch = 40
